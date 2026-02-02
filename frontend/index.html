@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Management System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">
+                    <i class="fas fa-film"></i>
+                    Cinema Manager
+                </h1>
+                <nav class="nav">
+                    <ul class="nav-list">
+                        <li><a href="#films" class="nav-link active" data-section="films">Films</a></li>
+                        <li><a href="#salles" class="nav-link" data-section="salles">Salles</a></li>
+                        <li><a href="#seances" class="nav-link" data-section="seances">Séances</a></li>
+                        <li><a href="#planning" class="nav-link" data-section="planning">Planning</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Section Films -->
+            <section id="films-section" class="section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-film"></i> Gestion des Films</h2>
+                    <button class="btn btn-primary" onclick="openFilmModal()">
+                        <i class="fas fa-plus"></i> Ajouter un film
+                    </button>
+                </div>
+
+                <!-- Filtres -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <input type="text" id="film-search" placeholder="Rechercher un film..." class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <select id="film-genre" class="form-control">
+                            <option value="">Tous les genres</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="film-annee" class="form-control">
+                            <option value="">Toutes les années</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-secondary" onclick="resetFilmFilters()">
+                            <i class="fas fa-redo"></i> Réinitialiser
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tableau des films -->
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Genre</th>
+                                <th>Durée</th>
+                                <th>Année</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="films-tbody">
+                            <!-- Contenu généré par JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="films-pagination">
+                    <!-- Contenu généré par JavaScript -->
+                </div>
+            </section>
+
+            <!-- Section Salles -->
+            <section id="salles-section" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-door-open"></i> Gestion des Salles</h2>
+                    <button class="btn btn-primary" onclick="openSalleModal()">
+                        <i class="fas fa-plus"></i> Ajouter une salle
+                    </button>
+                </div>
+
+                <!-- Filtres -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <input type="text" id="salle-search" placeholder="Rechercher une salle..." class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-secondary" onclick="resetSalleFilters()">
+                            <i class="fas fa-redo"></i> Réinitialiser
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tableau des salles -->
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Capacité</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salles-tbody">
+                            <!-- Contenu généré par JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="salles-pagination">
+                    <!-- Contenu généré par JavaScript -->
+                </div>
+            </section>
+
+            <!-- Section Séances -->
+            <section id="seances-section" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-calendar-alt"></i> Gestion des Séances</h2>
+                    <button class="btn btn-primary" onclick="openSeanceModal()">
+                        <i class="fas fa-plus"></i> Ajouter une séance
+                    </button>
+                </div>
+
+                <!-- Filtres -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <input type="text" id="seance-search" placeholder="Rechercher une séance..." class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <select id="seance-film" class="form-control">
+                            <option value="">Tous les films</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="seance-salle" class="form-control">
+                            <option value="">Toutes les salles</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-secondary" onclick="resetSeanceFilters()">
+                            <i class="fas fa-redo"></i> Réinitialiser
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tableau des séances -->
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Film</th>
+                                <th>Salle</th>
+                                <th>Date</th>
+                                <th>Heure</th>
+                                <th>Prix</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="seances-tbody">
+                            <!-- Contenu généré par JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="seances-pagination">
+                    <!-- Contenu généré par JavaScript -->
+                </div>
+            </section>
+
+            <!-- Section Planning -->
+            <section id="planning-section" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-calendar-week"></i> Planning des Séances</h2>
+                </div>
+
+                <!-- Filtres de planning -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <input type="date" id="planning-date-debut" class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <input type="date" id="planning-date-fin" class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-primary" onclick="loadPlanning()">
+                            <i class="fas fa-search"></i> Afficher
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Planning par salle -->
+                <div id="planning-content">
+                    <!-- Contenu généré par JavaScript -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modaux -->
+    <!-- Modal Film -->
+    <div id="film-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="film-modal-title">Ajouter un film</h3>
+                <button class="modal-close" onclick="closeFilmModal()">&times;</button>
+            </div>
+            <form id="film-form">
+                <div class="form-group">
+                    <label for="film-titre">Titre *</label>
+                    <input type="text" id="film-titre" name="titre" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="film-description">Description</label>
+                    <textarea id="film-description" name="description" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="film-duree">Durée (minutes) *</label>
+                    <input type="number" id="film-duree" name="duree" class="form-control" required min="1" max="600">
+                </div>
+                <div class="form-group">
+                    <label for="film-annee-sortie">Année de sortie *</label>
+                    <input type="number" id="film-annee-sortie" name="annee_sortie" class="form-control" required min="1900">
+                </div>
+                <div class="form-group">
+                    <label for="film-genre">Genre *</label>
+                    <input type="text" id="film-genre" name="genre" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="film-affiche">URL de l'affiche</label>
+                    <input type="url" id="film-affiche" name="affiche" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeFilmModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Salle -->
+    <div id="salle-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="salle-modal-title">Ajouter une salle</h3>
+                <button class="modal-close" onclick="closeSalleModal()">&times;</button>
+            </div>
+            <form id="salle-form">
+                <div class="form-group">
+                    <label for="salle-nom">Nom *</label>
+                    <input type="text" id="salle-nom" name="nom" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="salle-capacite">Capacité *</label>
+                    <input type="number" id="salle-capacite" name="capacite" class="form-control" required min="1" max="1000">
+                </div>
+                <div class="form-group">
+                    <label for="salle-type">Type</label>
+                    <select id="salle-type" name="type" class="form-control">
+                        <option value="Standard">Standard</option>
+                        <option value="3D">3D</option>
+                        <option value="IMAX">IMAX</option>
+                        <option value="VIP">VIP</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeSalleModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Séance -->
+    <div id="seance-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="seance-modal-title">Ajouter une séance</h3>
+                <button class="modal-close" onclick="closeSeanceModal()">&times;</button>
+            </div>
+            <form id="seance-form">
+                <div class="form-group">
+                    <label for="seance-film-id">Film *</label>
+                    <select id="seance-film-id" name="film_id" class="form-control" required>
+                        <option value="">Sélectionner un film</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="seance-salle-id">Salle *</label>
+                    <select id="seance-salle-id" name="salle_id" class="form-control" required>
+                        <option value="">Sélectionner une salle</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="seance-date-seance">Date et heure *</label>
+                    <input type="datetime-local" id="seance-date-seance" name="date_seance" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="seance-prix">Prix (€)</label>
+                    <input type="number" id="seance-prix" name="prix" class="form-control" step="0.01" min="0" max="100" value="8.50">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeSeanceModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirmation -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmation</h3>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Êtes-vous sûr de vouloir continuer ?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Annuler</button>
+                <button class="btn btn-danger" id="confirm-btn">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <i class="toast-icon"></i>
+            <span class="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/films.js"></script>
+    <script src="js/salles.js"></script>
+    <script src="js/seances.js"></script>
+    <script src="js/planning.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
