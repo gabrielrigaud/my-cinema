@@ -21,10 +21,10 @@ async function loadPlanning() {
         }
         
         const params = {
-            date_debut: dateDebut,
-            date_fin: dateFin
+            date_start: dateDebut,
+            date_end: dateFin
         };
-        
+
         const response = await api.getPlanning(params);
         const planning = response.data;
         
@@ -67,19 +67,19 @@ function createSallePlanningElement(salle) {
     header.className = 'planning-salle-header';
     header.innerHTML = `
         <i class="fas fa-door-open"></i>
-        ${escapeHtml(salle.nom)} - ${salle.capacite} places (${escapeHtml(salle.type)})
+        ${escapeHtml(salle.name)} - ${salle.capacity} places (${escapeHtml(salle.type)})
     `;
     div.appendChild(header);
-    
+
     // Conteneur des séances
     const seancesContainer = document.createElement('div');
     seancesContainer.className = 'planning-seances';
-    
-    if (!salle.seances || salle.seances.length === 0) {
+
+    if (!salle.screenings || salle.screenings.length === 0) {
         seancesContainer.innerHTML = '<div class="text-center text-muted">Aucune séance programmée</div>';
     } else {
         // Grouper les séances par date
-        const seancesByDate = groupSeancesByDate(salle.seances);
+        const seancesByDate = groupSeancesByDate(salle.screenings);
         
         Object.keys(seancesByDate).sort().forEach(date => {
             const dateElement = createDateSeancesElement(date, seancesByDate[date]);
@@ -112,8 +112,8 @@ function createDateSeancesElement(date, seances) {
     seancesList.className = 'planning-date-seances';
     
     // Trier les séances par heure
-    seances.sort((a, b) => new Date(a.date_seance) - new Date(b.date_seance));
-    
+    seances.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
     seances.forEach(seance => {
         const seanceElement = createSeancePlanningElement(seance);
         seancesList.appendChild(seanceElement);
@@ -129,25 +129,22 @@ function createDateSeancesElement(date, seances) {
 function createSeancePlanningElement(seance) {
     const div = document.createElement('div');
     div.className = 'planning-seance';
-    
-    const dateObj = new Date(seance.date_seance);
+
+    const dateObj = new Date(seance.start_time);
     const isPast = dateObj < new Date();
-    
+
     div.innerHTML = `
         <div class="planning-seance-info">
             <div class="planning-seance-film">
                 <i class="fas fa-film"></i>
-                ${escapeHtml(seance.film_titre)}
+                ${escapeHtml(seance.movie_title)}
                 ${isPast ? '<span class="badge badge-past">Passée</span>' : ''}
             </div>
             <div class="planning-seance-time">
                 <i class="fas fa-clock"></i>
-                ${formatTime(seance.date_seance)} - ${calculateEndTime(seance.date_seance, seance.film_duree)}
-                <span class="text-muted">(${seance.film_duree} min)</span>
+                ${formatTime(seance.start_time)} - ${calculateEndTime(seance.start_time, seance.movie_duration)}
+                <span class="text-muted">(${seance.movie_duration} min)</span>
             </div>
-        </div>
-        <div class="planning-seance-price">
-            ${formatPrice(seance.prix)}
         </div>
     `;
     
@@ -164,15 +161,15 @@ function createSeancePlanningElement(seance) {
  */
 function groupSeancesByDate(seances) {
     const grouped = {};
-    
+
     seances.forEach(seance => {
-        const date = seance.date_seance.split(' ')[0]; // Extraire juste la date
+        const date = seance.start_time.split(' ')[0]; // Extraire juste la date
         if (!grouped[date]) {
             grouped[date] = [];
         }
         grouped[date].push(seance);
     });
-    
+
     return grouped;
 }
 
@@ -222,12 +219,3 @@ function formatTime(dateString) {
     });
 }
 
-/**
- * Formate un prix
- */
-function formatPrice(price) {
-    return new Intl.NumberFormat('fr-FR', {
-        style: 'currency',
-        currency: 'EUR'
-    }).format(price);
-}

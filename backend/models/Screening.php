@@ -30,24 +30,29 @@ class Screening {
         $params = [];
         
         if (!empty($search)) {
-            $sql .= " AND (m.title LIKE :search OR r.name LIKE :search)";
-            $params[':search'] = '%' . $search . '%';
+            $sql .= " AND (m.title LIKE :search1 OR r.name LIKE :search2)";
         }
-        
+
         if (!empty($roomId)) {
             $sql .= " AND s.room_id = :room_id";
             $params[':room_id'] = $roomId;
         }
-        
+
         if (!empty($movieId)) {
             $sql .= " AND s.movie_id = :movie_id";
             $params[':movie_id'] = $movieId;
         }
-        
+
         $sql .= " ORDER BY s.start_time DESC LIMIT :limit OFFSET :offset";
-        
+
         $stmt = $this->db->prepare($sql);
-        
+
+        if (!empty($search)) {
+            $searchParam = '%' . $search . '%';
+            $stmt->bindValue(':search1', $searchParam);
+            $stmt->bindValue(':search2', $searchParam);
+        }
+
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);
         }
@@ -71,26 +76,31 @@ class Screening {
         $params = [];
         
         if (!empty($search)) {
-            $sql .= " AND (m.title LIKE :search OR r.name LIKE :search)";
-            $params[':search'] = '%' . $search . '%';
+            $sql .= " AND (m.title LIKE :search1 OR r.name LIKE :search2)";
         }
-        
+
         if (!empty($roomId)) {
             $sql .= " AND s.room_id = :room_id";
             $params[':room_id'] = $roomId;
         }
-        
+
         if (!empty($movieId)) {
             $sql .= " AND s.movie_id = :movie_id";
             $params[':movie_id'] = $movieId;
         }
-        
+
         $stmt = $this->db->prepare($sql);
-        
+
+        if (!empty($search)) {
+            $searchParam = '%' . $search . '%';
+            $stmt->bindValue(':search1', $searchParam);
+            $stmt->bindValue(':search2', $searchParam);
+        }
+
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);
         }
-        
+
         $stmt->execute();
         return $stmt->fetch()['total'];
     }

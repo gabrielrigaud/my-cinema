@@ -1,12 +1,5 @@
-/**
- * Gestion des salles
- */
-
 let currentPageSalles = 1;
 
-/**
- * Charge la liste des salles
- */
 async function loadSalles(page = 1) {
     try {
         const search = document.getElementById('salle-search')?.value || '';
@@ -16,8 +9,8 @@ async function loadSalles(page = 1) {
             search
         };
         
-        const response = await api.getSalles(params);
-        const salles = response.data.salles;
+        const response = await api.getRooms(params);
+        const salles = response.data.rooms;
         const pagination = response.data.pagination;
         
         renderSalles(salles);
@@ -32,9 +25,6 @@ async function loadSalles(page = 1) {
     }
 }
 
-/**
- * Affiche la liste des salles dans le tableau
- */
 function renderSalles(salles) {
     const tbody = document.getElementById('salles-tbody');
     emptyElement('salles-tbody');
@@ -49,11 +39,11 @@ function renderSalles(salles) {
         tr.innerHTML = `
             <td>
                 <div class="salle-info">
-                    <strong>${escapeHtml(salle.nom)}</strong>
+                    <strong>${escapeHtml(salle.name)}</strong>
                 </div>
             </td>
             <td>
-                <span class="badge badge-capacity">${salle.capacite} places</span>
+                <span class="badge badge-capacity">${salle.capacity} places</span>
             </td>
             <td>
                 <span class="badge badge-type">${escapeHtml(salle.type)}</span>
@@ -73,9 +63,6 @@ function renderSalles(salles) {
     });
 }
 
-/**
- * Affiche la pagination pour les salles
- */
 function renderSallesPagination(pagination) {
     const container = document.getElementById('salles-pagination');
     emptyElement('salles-pagination');
@@ -141,62 +128,54 @@ function renderSallesPagination(pagination) {
     container.appendChild(nextBtn);
 }
 
-/**
- * Charge les salles pour les sélecteurs
- */
 async function loadSallesForSelect() {
     try {
-        const response = await api.getSallesForSelect();
+        const response = await api.getRoomsForSelect();
         const salles = response.data;
-        
+
         // Mettre à jour le sélecteur dans le formulaire des séances
         const seanceSalleSelect = document.getElementById('seance-salle-id');
         if (seanceSalleSelect) {
-            // Garder l'option par défaut
             const defaultValue = seanceSalleSelect.value;
             seanceSalleSelect.innerHTML = '<option value="">Sélectionner une salle</option>';
-            
+
             salles.forEach(salle => {
                 const option = document.createElement('option');
                 option.value = salle.id;
-                option.textContent = `${salle.nom} (${salle.capacite} places, ${salle.type})`;
+                option.textContent = `${salle.name} (${salle.capacity} places, ${salle.type})`;
                 seanceSalleSelect.appendChild(option);
             });
-            
-            // Restaurer la valeur précédente
+
             seanceSalleSelect.value = defaultValue;
         }
-        
+
         // Mettre à jour le sélecteur dans les filtres des séances
         const seanceFilterSalleSelect = document.getElementById('seance-salle');
         if (seanceFilterSalleSelect) {
             const defaultValue = seanceFilterSalleSelect.value;
             seanceFilterSalleSelect.innerHTML = '<option value="">Toutes les salles</option>';
-            
+
             salles.forEach(salle => {
                 const option = document.createElement('option');
                 option.value = salle.id;
-                option.textContent = `${salle.nom} (${salle.capacite} places)`;
+                option.textContent = `${salle.name} (${salle.capacity} places)`;
                 seanceFilterSalleSelect.appendChild(option);
             });
-            
+
             seanceFilterSalleSelect.value = defaultValue;
         }
-        
+
     } catch (error) {
         console.error('Error loading salles for select:', error);
     }
 }
 
-/**
- * Confirme la suppression d'une salle
- */
 function confirmDeleteSalle(salleId) {
     openConfirmModal(
         'Êtes-vous sûr de vouloir supprimer cette salle ? Cette action est irréversible.',
         async () => {
             try {
-                await api.deleteSalle(salleId);
+                await api.deleteRoom(salleId);
                 showToast('Salle supprimée avec succès', 'success');
                 loadSalles(currentPageSalles);
                 loadSallesForSelect();
@@ -207,13 +186,6 @@ function confirmDeleteSalle(salleId) {
     );
 }
 
-/**
- * Fonctions utilitaires
- */
-
-/**
- * Échappe les caractères HTML pour éviter les injections
- */
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;

@@ -5,14 +5,22 @@
  */
 
 class Database {
-    private $host = 'localhost';
-    private $dbname = 'cinema';
-    private $username = 'root';
-    private $password = '';
+    private $host;
+    private $dbname;
+    private $username;
+    private $password;
     private $charset = 'utf8mb4';
     private $pdo;
 
     public function __construct() {
+        // Charger les paramètres depuis les variables d'environnement
+        require_once __DIR__ . '/../utils/EnvLoader.php';
+
+        $this->host = EnvLoader::get('DB_HOST', 'localhost');
+        $this->dbname = EnvLoader::get('DB_NAME', 'cinema');
+        $this->username = EnvLoader::get('DB_USER', 'root');
+        $this->password = EnvLoader::get('DB_PASS', '');
+
         $this->connect();
     }
 
@@ -26,11 +34,17 @@ class Database {
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_PERSISTENT => false, // Désactiver les connexions persistantes pour la sécurité
             ];
 
             $this->pdo = new PDO($dsn, $this->username, $this->password, $options);
         } catch (PDOException $e) {
-            throw new Exception("Erreur de connexion à la base de données: " . $e->getMessage());
+            // En production, ne pas afficher les détails de l'erreur
+            if (defined('APP_DEBUG') && APP_DEBUG) {
+                throw new Exception("Erreur de connexion à la base de données: " . $e->getMessage());
+            } else {
+                throw new Exception("Erreur de connexion à la base de données. Veuillez contacter l'administrateur.");
+            }
         }
     }
 

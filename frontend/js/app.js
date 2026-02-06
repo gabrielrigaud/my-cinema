@@ -1,45 +1,23 @@
-/**
- * Application principale - Gestion de l'interface utilisateur
- */
-
-// Variables globales
 let currentSection = 'films';
 let currentFilmId = null;
 let currentSalleId = null;
 let currentSeanceId = null;
 
-// Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
 
-/**
- * Initialise l'application
- */
 function initializeApp() {
-    // Configuration initiale
     setMinDateTime();
     initPlanningDates();
-    
-    // Gestion de la navigation
     setupNavigation();
-    
-    // Gestion des formulaires
     setupForms();
-    
-    // Gestion des modaux
     setupModals();
-    
-    // Charger la section par défaut
+    setupFilters();
     showSection('films');
-    
-    // Charger les données initiales
     loadInitialData();
 }
 
-/**
- * Configure la navigation
- */
 function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
     
@@ -52,23 +30,17 @@ function setupNavigation() {
     });
 }
 
-/**
- * Affiche une section spécifique
- */
 function showSection(sectionName) {
-    // Masquer toutes les sections
     const sections = document.querySelectorAll('.section');
     sections.forEach(section => {
         section.classList.remove('active');
     });
-    
-    // Afficher la section demandée
+
     const targetSection = document.getElementById(`${sectionName}-section`);
     if (targetSection) {
         targetSection.classList.add('active');
     }
-    
-    // Mettre à jour la navigation
+
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
         link.classList.remove('active');
@@ -76,16 +48,11 @@ function showSection(sectionName) {
             link.classList.add('active');
         }
     });
-    
+
     currentSection = sectionName;
-    
-    // Charger les données de la section
     loadSectionData(sectionName);
 }
 
-/**
- * Charge les données d'une section
- */
 function loadSectionData(sectionName) {
     switch (sectionName) {
         case 'films':
@@ -100,54 +67,37 @@ function loadSectionData(sectionName) {
             loadSeanceFilters();
             break;
         case 'planning':
-            // Le planning est chargé manuellement via le bouton
             break;
     }
 }
 
-/**
- * Charge les données initiales
- */
 async function loadInitialData() {
     try {
-        // Charger les salles pour les sélecteurs
         await loadSallesForSelect();
-        
-        // Charger les films pour les sélecteurs
         await loadFilmsForSelect();
     } catch (error) {
         console.error('Error loading initial data:', error);
     }
 }
 
-/**
- * Configure les formulaires
- */
 function setupForms() {
-    // Formulaire des films
     const filmForm = document.getElementById('film-form');
     if (filmForm) {
         filmForm.addEventListener('submit', handleFilmSubmit);
     }
-    
-    // Formulaire des salles
+
     const salleForm = document.getElementById('salle-form');
     if (salleForm) {
         salleForm.addEventListener('submit', handleSalleSubmit);
     }
-    
-    // Formulaire des séances
+
     const seanceForm = document.getElementById('seance-form');
     if (seanceForm) {
         seanceForm.addEventListener('submit', handleSeanceSubmit);
     }
 }
 
-/**
- * Configure les modaux
- */
 function setupModals() {
-    // Fermer les modaux en cliquant à l'extérieur
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', function(e) {
             if (e.target === this) {
@@ -155,8 +105,7 @@ function setupModals() {
             }
         });
     });
-    
-    // Gérer la touche Échap
+
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeAllModals();
@@ -164,97 +113,98 @@ function setupModals() {
     });
 }
 
-/**
- * Ferme tous les modaux
- */
 function closeAllModals() {
     document.querySelectorAll('.modal').forEach(modal => {
         modal.classList.remove('show');
     });
 }
 
-/**
- * Configure les filtres
- */
 function setupFilters() {
-    // Filtres des films
     const filmSearch = document.getElementById('film-search');
     const filmGenre = document.getElementById('film-genre');
     const filmAnnee = document.getElementById('film-annee');
-    
+
     if (filmSearch) filmSearch.addEventListener('input', () => loadFilms());
     if (filmGenre) filmGenre.addEventListener('change', () => loadFilms());
     if (filmAnnee) filmAnnee.addEventListener('change', () => loadFilms());
-    
-    // Filtres des salles
+
     const salleSearch = document.getElementById('salle-search');
     if (salleSearch) salleSearch.addEventListener('input', () => loadSalles());
-    
-    // Filtres des séances
+
     const seanceSearch = document.getElementById('seance-search');
     const seanceFilm = document.getElementById('seance-film');
     const seanceSalle = document.getElementById('seance-salle');
-    
+
     if (seanceSearch) seanceSearch.addEventListener('input', () => loadSeances());
     if (seanceFilm) seanceFilm.addEventListener('change', () => loadSeances());
     if (seanceSalle) seanceSalle.addEventListener('change', () => loadSeances());
 }
 
-/**
- * Gestionnaires d'événements pour les formulaires
- */
-
-// Gestionnaire pour le formulaire des films
 async function handleFilmSubmit(e) {
     e.preventDefault();
-    
+
     if (!validateForm('film-form')) {
         showToast('Veuillez remplir tous les champs obligatoires', 'warning');
         return;
     }
-    
+
     const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    
+
+    // Mapper les champs frontend vers backend
+    const data = {
+        title: formData.get('titre'),
+        description: formData.get('description'),
+        duration: parseInt(formData.get('duree')),
+        release_year: parseInt(formData.get('annee_sortie')),
+        genre: formData.get('genre'),
+        director: formData.get('realisateur')
+    };
+
     try {
         if (currentFilmId) {
-            await api.updateFilm(currentFilmId, data);
+            await api.updateMovie(currentFilmId, data);
             showToast('Film mis à jour avec succès', 'success');
         } else {
-            await api.createFilm(data);
+            await api.createMovie(data);
             showToast('Film créé avec succès', 'success');
         }
-        
+
         closeFilmModal();
         loadFilms();
         loadFilmFilters();
+        loadFilmsForSelect();
     } catch (error) {
         handleApiError(error);
     }
 }
 
-// Gestionnaire pour le formulaire des salles
 async function handleSalleSubmit(e) {
     e.preventDefault();
-    
+
     if (!validateForm('salle-form')) {
         showToast('Veuillez remplir tous les champs obligatoires', 'warning');
         return;
     }
-    
+
     const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    data.capacite = parseInt(data.capacite);
-    
+
+    // Mapper les champs frontend vers backend
+    const data = {
+        name: formData.get('nom'),
+        capacity: parseInt(formData.get('capacite')),
+        type: formData.get('type'),
+        active: true
+    };
+
     try {
         if (currentSalleId) {
-            await api.updateSalle(currentSalleId, data);
+            await api.updateRoom(currentSalleId, data);
             showToast('Salle mise à jour avec succès', 'success');
         } else {
-            await api.createSalle(data);
+            await api.createRoom(data);
             showToast('Salle créée avec succès', 'success');
         }
-        
+
         closeSalleModal();
         loadSalles();
         loadSallesForSelect();
@@ -263,40 +213,38 @@ async function handleSalleSubmit(e) {
     }
 }
 
-// Gestionnaire pour le formulaire des séances
 async function handleSeanceSubmit(e) {
     e.preventDefault();
-    
+
     if (!validateForm('seance-form')) {
         showToast('Veuillez remplir tous les champs obligatoires', 'warning');
         return;
     }
-    
+
     const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    data.film_id = parseInt(data.film_id);
-    data.salle_id = parseInt(data.salle_id);
-    data.prix = parseFloat(data.prix);
-    
+
+    // Mapper les champs frontend vers backend
+    const data = {
+        movie_id: parseInt(formData.get('film_id')),
+        room_id: parseInt(formData.get('salle_id')),
+        start_time: formData.get('date_seance')
+    };
+
     try {
         if (currentSeanceId) {
-            await api.updateSeance(currentSeanceId, data);
+            await api.updateScreening(currentSeanceId, data);
             showToast('Séance mise à jour avec succès', 'success');
         } else {
-            await api.createSeance(data);
+            await api.createScreening(data);
             showToast('Séance créée avec succès', 'success');
         }
-        
+
         closeSeanceModal();
         loadSeances();
     } catch (error) {
         handleApiError(error);
     }
 }
-
-/**
- * Fonctions utilitaires pour les modaux
- */
 
 function openFilmModal(filmId = null) {
     currentFilmId = filmId;
@@ -311,7 +259,7 @@ function openFilmModal(filmId = null) {
         title.textContent = 'Ajouter un film';
         resetForm('film-form');
     }
-    
+
     modal.classList.add('show');
 }
 
@@ -334,7 +282,7 @@ function openSalleModal(salleId = null) {
         title.textContent = 'Ajouter une salle';
         resetForm('salle-form');
     }
-    
+
     modal.classList.add('show');
 }
 
@@ -357,7 +305,7 @@ function openSeanceModal(seanceId = null) {
         title.textContent = 'Ajouter une séance';
         resetForm('seance-form');
     }
-    
+
     modal.classList.add('show');
 }
 
@@ -371,19 +319,17 @@ function openConfirmModal(message, onConfirm) {
     const modal = document.getElementById('confirm-modal');
     const messageElement = document.getElementById('confirm-message');
     const confirmBtn = document.getElementById('confirm-btn');
-    
+
     messageElement.textContent = message;
-    
-    // Supprimer les anciens écouteurs
+
     const newConfirmBtn = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-    
-    // Ajouter le nouvel écouteur
+
     newConfirmBtn.addEventListener('click', function() {
         onConfirm();
         closeConfirmModal();
     });
-    
+
     modal.classList.add('show');
 }
 
@@ -391,9 +337,6 @@ function closeConfirmModal() {
     document.getElementById('confirm-modal').classList.remove('show');
 }
 
-/**
- * Fonctions de réinitialisation des filtres
- */
 function resetFilmFilters() {
     document.getElementById('film-search').value = '';
     document.getElementById('film-genre').value = '';
@@ -413,20 +356,17 @@ function resetSeanceFilters() {
     loadSeances();
 }
 
-/**
- * Fonctions de chargement pour l'édition
- */
 async function loadFilmForEdit(filmId) {
     try {
-        const response = await api.getFilm(filmId);
+        const response = await api.getMovie(filmId);
         const film = response.data;
-        
-        document.getElementById('film-titre').value = film.titre;
+
+        document.getElementById('film-titre').value = film.title;
         document.getElementById('film-description').value = film.description || '';
-        document.getElementById('film-duree').value = film.duree;
-        document.getElementById('film-annee-sortie').value = film.annee_sortie;
-        document.getElementById('film-genre').value = film.genre;
-        document.getElementById('film-affiche').value = film.affiche || '';
+        document.getElementById('film-duree').value = film.duration;
+        document.getElementById('film-annee-sortie').value = film.release_year;
+        document.getElementById('film-genre-input').value = film.genre || '';
+        document.getElementById('film-realisateur').value = film.director || '';
     } catch (error) {
         handleApiError(error);
     }
@@ -434,11 +374,11 @@ async function loadFilmForEdit(filmId) {
 
 async function loadSalleForEdit(salleId) {
     try {
-        const response = await api.getSalle(salleId);
+        const response = await api.getRoom(salleId);
         const salle = response.data;
-        
-        document.getElementById('salle-nom').value = salle.nom;
-        document.getElementById('salle-capacite').value = salle.capacite;
+
+        document.getElementById('salle-nom').value = salle.name;
+        document.getElementById('salle-capacite').value = salle.capacity;
         document.getElementById('salle-type').value = salle.type;
     } catch (error) {
         handleApiError(error);
@@ -447,22 +387,20 @@ async function loadSalleForEdit(salleId) {
 
 async function loadSeanceForEdit(seanceId) {
     try {
-        const response = await api.getSeance(seanceId);
+        const response = await api.getScreening(seanceId);
         const seance = response.data;
-        
-        document.getElementById('seance-film-id').value = seance.film_id;
-        document.getElementById('seance-salle-id').value = seance.salle_id;
-        
-        // Formater la date pour le champ datetime-local
-        const date = new Date(seance.date_seance);
+
+        document.getElementById('seance-film-id').value = seance.movie_id;
+        document.getElementById('seance-salle-id').value = seance.room_id;
+
+        const date = new Date(seance.start_time);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
-        
+
         document.getElementById('seance-date-seance').value = `${year}-${month}-${day}T${hours}:${minutes}`;
-        document.getElementById('seance-prix').value = seance.prix;
     } catch (error) {
         handleApiError(error);
     }

@@ -20,8 +20,8 @@ async function loadFilms(page = 1) {
             annee
         };
         
-        const response = await api.getFilms(params);
-        const films = response.data.films;
+        const response = await api.getMovies(params);
+        const films = response.data.movies;
         const pagination = response.data.pagination;
         
         renderFilms(films);
@@ -53,15 +53,15 @@ function renderFilms(films) {
         tr.innerHTML = `
             <td>
                 <div class="film-info">
-                    <strong>${escapeHtml(film.titre)}</strong>
+                    <strong>${escapeHtml(film.title)}</strong>
                     ${film.description ? `<br><small class="text-muted">${escapeHtml(truncateText(film.description, 100))}</small>` : ''}
                 </div>
             </td>
             <td>
-                <span class="badge badge-genre">${escapeHtml(film.genre)}</span>
+                <span class="badge badge-genre">${escapeHtml(film.genre || '-')}</span>
             </td>
-            <td>${film.duree} min</td>
-            <td>${film.annee_sortie}</td>
+            <td>${film.duration} min</td>
+            <td>${film.release_year}</td>
             <td>
                 <div class="table-actions">
                     <button class="btn btn-sm btn-primary" onclick="openFilmModal(${film.id})" title="Modifier">
@@ -151,10 +151,10 @@ function renderFilmsPagination(pagination) {
 async function loadFilmFilters() {
     try {
         // Charger les genres
-        const genresResponse = await api.getFilmGenres();
+        const genresResponse = await api.getMovieGenres();
         const genres = genresResponse.data;
         const genreSelect = document.getElementById('film-genre');
-        
+
         if (genreSelect) {
             // Garder l'option "Tous les genres"
             genreSelect.innerHTML = '<option value="">Tous les genres</option>';
@@ -165,9 +165,9 @@ async function loadFilmFilters() {
                 genreSelect.appendChild(option);
             });
         }
-        
+
         // Charger les années
-        const anneesResponse = await api.getFilmAnnees();
+        const anneesResponse = await api.getMovieYears();
         const annees = anneesResponse.data;
         const anneeSelect = document.getElementById('film-annee');
         
@@ -192,43 +192,41 @@ async function loadFilmFilters() {
  */
 async function loadFilmsForSelect() {
     try {
-        const response = await api.getFilms({ page: 1, limit: 1000 });
-        const films = response.data.films;
-        
+        const response = await api.getMovies({ page: 1, limit: 1000 });
+        const films = response.data.movies;
+
         // Mettre à jour le sélecteur dans le formulaire des séances
-        const seanceFilmSelect = document.getElementById('seance-film');
-        if (seanceFilmSelect) {
-            // Garder l'option par défaut
-            const defaultValue = seanceFilmSelect.value;
-            seanceFilmSelect.innerHTML = '<option value="">Sélectionner un film</option>';
-            
+        const seanceFilmIdSelect = document.getElementById('seance-film-id');
+        if (seanceFilmIdSelect) {
+            const defaultValue = seanceFilmIdSelect.value;
+            seanceFilmIdSelect.innerHTML = '<option value="">Sélectionner un film</option>';
+
             films.forEach(film => {
                 const option = document.createElement('option');
                 option.value = film.id;
-                option.textContent = `${film.titre} (${film.annee_sortie})`;
-                seanceFilmSelect.appendChild(option);
+                option.textContent = `${film.title} (${film.release_year})`;
+                seanceFilmIdSelect.appendChild(option);
             });
-            
-            // Restaurer la valeur précédente
-            seanceFilmSelect.value = defaultValue;
+
+            seanceFilmIdSelect.value = defaultValue;
         }
-        
+
         // Mettre à jour le sélecteur dans les filtres des séances
-        const seanceFilterFilmSelect = document.getElementById('seance-film');
-        if (seanceFilterFilmSelect) {
-            const defaultValue = seanceFilterFilmSelect.value;
-            seanceFilterFilmSelect.innerHTML = '<option value="">Tous les films</option>';
-            
+        const seanceFilmFilterSelect = document.getElementById('seance-film');
+        if (seanceFilmFilterSelect) {
+            const defaultValue = seanceFilmFilterSelect.value;
+            seanceFilmFilterSelect.innerHTML = '<option value="">Tous les films</option>';
+
             films.forEach(film => {
                 const option = document.createElement('option');
                 option.value = film.id;
-                option.textContent = `${film.titre} (${film.annee_sortie})`;
-                seanceFilterFilmSelect.appendChild(option);
+                option.textContent = `${film.title} (${film.release_year})`;
+                seanceFilmFilterSelect.appendChild(option);
             });
-            
-            seanceFilterFilmSelect.value = defaultValue;
+
+            seanceFilmFilterSelect.value = defaultValue;
         }
-        
+
     } catch (error) {
         console.error('Error loading films for select:', error);
     }
@@ -242,7 +240,7 @@ function confirmDeleteFilm(filmId) {
         'Êtes-vous sûr de vouloir supprimer ce film ? Cette action est irréversible.',
         async () => {
             try {
-                await api.deleteFilm(filmId);
+                await api.deleteMovie(filmId);
                 showToast('Film supprimé avec succès', 'success');
                 loadFilms(currentPageFilms);
                 loadFilmFilters();

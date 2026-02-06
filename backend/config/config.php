@@ -1,18 +1,35 @@
 <?php
-define('APP_NAME', 'Cinema Management System');
-define('APP_VERSION', '1.0.0');
-define('APP_DEBUG', true);
 
-define('BASE_URL', 'http://localhost/my-cinema');
+// Charger les variables d'environnement
+require_once __DIR__ . '/../utils/EnvLoader.php';
+
+try {
+    EnvLoader::load(__DIR__ . '/../.env');
+} catch (Exception $e) {
+    die('Erreur de chargement du fichier .env : ' . $e->getMessage());
+}
+
+// Configuration de l'application
+define('APP_NAME', EnvLoader::get('APP_NAME', 'Cinema Management System'));
+define('APP_VERSION', EnvLoader::get('APP_VERSION', '1.0.0'));
+define('APP_DEBUG', EnvLoader::get('APP_DEBUG', false));
+define('APP_ENV', EnvLoader::get('APP_ENV', 'production'));
+
+define('BASE_URL', EnvLoader::get('BASE_URL', 'http://localhost:8000'));
+define('FRONTEND_URL', EnvLoader::get('FRONTEND_URL', BASE_URL));
 define('API_BASE_URL', BASE_URL . '/backend/api');
 
 // Configuration de la pagination
-define('ITEMS_PER_PAGE', 10);
+define('ITEMS_PER_PAGE', (int)EnvLoader::get('ITEMS_PER_PAGE', 10));
 
 // Configuration des headers CORS
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+$allowedOrigins = EnvLoader::get('CORS_ALLOWED_ORIGINS', '*');
+$allowedMethods = EnvLoader::get('CORS_ALLOWED_METHODS', 'GET, POST, PUT, DELETE, OPTIONS');
+$allowedHeaders = EnvLoader::get('CORS_ALLOWED_HEADERS', 'Content-Type, Authorization');
+
+header("Access-Control-Allow-Origin: $allowedOrigins");
+header("Access-Control-Allow-Methods: $allowedMethods");
+header("Access-Control-Allow-Headers: $allowedHeaders");
 
 // Gestion des requêtes OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -20,7 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Configuration du fuseau horaire
-date_default_timezone_set('Europe/Paris');
+date_default_timezone_set(EnvLoader::get('TIMEZONE', 'Europe/Paris'));
+
+// Headers de sécurité
+require_once __DIR__ . '/../utils/Security.php';
+Security::setSecurityHeaders();
 
 // Configuration de l'affichage des erreurs
 if (APP_DEBUG) {
