@@ -1,0 +1,12 @@
+{
+  "name": "my-cinema",
+  "version": "1.0.0",
+  "description": "Application de gestion de cinéma",
+  "scripts": {
+    "build:css": "tailwindcss -i ./frontend/css/input.css -o ./frontend/css/output.css",
+    "watch:css": "tailwindcss -i ./frontend/css/input.css -o ./frontend/css/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}
