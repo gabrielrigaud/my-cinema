@@ -38,6 +38,45 @@ CREATE DATABASE my_cinema CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 mysql -u root -p my_cinema < script.sql
 ```
 
+### 4. Installation de Tailwind CSS
+
+#### Option A : Via CDN (Développement rapide)
+
+Décommentez cette ligne dans `backend/includes/header.php` :
+
+```html
+<script src="https://cdn.tailwindcss.com"></script>
+```
+
+#### Option B : Installation complète (Recommandé)
+
+```bash
+# Installer les dépendances
+npm install
+
+# Compiler Tailwind CSS
+npm run build:css
+
+# Ou en mode watch (recompile automatiquement)
+npm run watch:css
+```
+
+Le fichier CSS compilé sera généré dans `frontend/css/output.css`.
+
+### 5. Lancer l'application
+
+```bash
+# Avec le serveur PHP intégré
+cd backend
+php -S localhost:8000
+
+# Ou avec XAMPP/WAMP, placez le projet dans htdocs/www
+```
+
+Accédez à l'application : `http://localhost:8000` ou `http://localhost/my-cinema/backend/`
+
+## 📁 Structure du Projet
+
 ```
 my-cinema/
 ├── backend/
