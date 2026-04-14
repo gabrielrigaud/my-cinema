@@ -51,29 +51,29 @@ Décommentez cette ligne dans `backend/includes/header.php` :
 #### Option B : Installation complète (Recommandé)
 
 ```bash
-# Installer les dépendances
+# Installer les dépendances (Tailwind, Concurrently)
 npm install
 
-# Compiler Tailwind CSS
-npm run build:css
-
-# Ou en mode watch (recompile automatiquement)
-npm run watch:css
+# Lancer l'environnement de développement (Serveur PHP + Watcher Tailwind)
+npm run dev
 ```
 
 Le fichier CSS compilé sera généré dans `frontend/css/output.css`.
 
 ### 5. Lancer l'application
 
-```bash
-# Avec le serveur PHP intégré
-cd backend
-php -S localhost:8000
+La méthode recommandée est d'utiliser le script de développement qui gère tout automatiquement :
 
-# Ou avec XAMPP/WAMP, placez le projet dans htdocs/www
+```bash
+npm run dev
 ```
 
-Accédez à l'application : `http://localhost:8000` ou `http://localhost/my-cinema/backend/`
+Ce script :
+1. Compile le CSS avec Tailwind.
+2. Lance le serveur PHP intégré sur `http://localhost:8000`.
+3. Lance le mode `watch` de Tailwind pour compiler vos changements CSS en temps réel.
+
+Accédez à l'application : [http://localhost:8000](http://localhost:8000)
 
 ## 📁 Structure du Projet
 

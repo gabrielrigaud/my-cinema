@@ -5,9 +5,9 @@
  */
 
 $dbHost = 'localhost';
-$dbName = 'cinema';
+$dbName = 'my_cinema';
 $dbUser = 'root';
-$dbPass = '';
+$dbPass = 'root';
 
 try {
     $db = new PDO(
