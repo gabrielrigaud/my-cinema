@@ -1,111 +1,56 @@
-# My Cinema - Application de Gestion de Cinéma
+# My Cinema
 
-Application web de gestion de cinéma développée en PHP/MySQL avec architecture MVC et interface Tailwind CSS.
+Application web de gestion de complexe cinématographique (films, salles, séances et tableau de bord) développée en PHP orienté objet selon une architecture MVC avec couche Repository.
 
-## 🛠️ Technologies Utilisées
+Démo en ligne : [solowia.fr/my-cinema/backend/index.php](https://solowia.fr/my-cinema/backend/index.php)
 
-- **Backend** : PHP 8.3+
-- **Base de données** : MySQL 8.0+
-- **Frontend** : HTML5, Tailwind CSS, JavaScript
-- **Architecture** : MVC (Model-View-Controller)
+## Stack technique
 
-## 📦 Installation
+- **Back-end :** PHP 8, PDO (`utf8mb4`, `PDO::ATTR_EMULATE_PREPARES => false`)
+- **Base de données :** MySQL (`script.sql` avec clés étrangères `ON DELETE RESTRICT` et index)
+- **Front-end :** Tailwind CSS, JavaScript natif (`frontend/js/app.js`)
 
-### 1. Prérequis
+## Architecture et choix techniques
 
-- PHP 8.3 ou supérieur
-- MySQL 8.0 ou supérieur
-- Serveur web (Apache/Nginx) ou PHP built-in server
-- Node.js et npm (pour compiler Tailwind CSS)
+- **Front Controller (`backend/index.php`) :** routage centralisé par paramètres `?controller=...&action=...` vers `DashboardController`, `FilmController`, `SalleController` et `SeanceController`.
+- **Couche Repository (`backend/repositories/`) :** isolation des requêtes SQL préparées dans `FilmRepository`, `SalleRepository` et `SeanceRepository`.
+- **Intégrité des données :**
+  - Contraintes relationnelles MySQL (`ON DELETE RESTRICT`).
+  - Suppression logique (`is_deleted = 1`) sur les films et salles avec vérification préalable des séances associées (`hasSeances()`).
+- **Validation & Retours utilisateur :** validation côté serveur (durées, années, champs obligatoires) et messages flash en session (`$_SESSION['success']`, `$_SESSION['error']`).
 
-### 2. Cloner le projet
+## Structure
 
-```bash
-git clone https://github.com/votre-username/my-cinema.git
-cd my-cinema
-```
-
-### 3. Configuration de la base de données
-
-```bash
-# Se connecter à MySQL
-mysql -u root -p
-
-# Créer la base de données
-CREATE DATABASE my_cinema CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-# Importer le schéma
-mysql -u root -p my_cinema < script.sql
-```
-
-### 4. Installation de Tailwind CSS
-
-#### Option A : Via CDN (Développement rapide)
-
-Décommentez cette ligne dans `backend/includes/header.php` :
-
-```html
-<script src="https://cdn.tailwindcss.com"></script>
-```
-
-#### Option B : Installation complète (Recommandé)
-
-```bash
-# Installer les dépendances (Tailwind, Concurrently)
-npm install
-
-# Lancer l'environnement de développement (Serveur PHP + Watcher Tailwind)
-npm run dev
-```
-
-Le fichier CSS compilé sera généré dans `frontend/css/output.css`.
-
-### 5. Lancer l'application
-
-La méthode recommandée est d'utiliser le script de développement qui gère tout automatiquement :
-
-```bash
-npm run dev
-```
-
-Ce script :
-1. Compile le CSS avec Tailwind.
-2. Lance le serveur PHP intégré sur `http://localhost:8000`.
-3. Lance le mode `watch` de Tailwind pour compiler vos changements CSS en temps réel.
-
-Accédez à l'application : [http://localhost:8000](http://localhost:8000)
-
-## 📁 Structure du Projet
-
-```
+```text
 my-cinema/
 ├── backend/
-│   ├── config/
-│   │   └── database.php          # Configuration PDO
-│   ├── repositories/             # Couche d'accès aux données
-│   │   ├── FilmRepository.php
-│   │   ├── SalleRepository.php
-│   │   └── SeanceRepository.php
-│   ├── controllers/              # Contrôleurs MVC
-│   │   ├── FilmController.php
-│   │   ├── SalleController.php
-│   │   └── SeanceController.php
-│   ├── views/                    # Vues (templates PHP)
-│   │   ├── films/
-│   │   ├── salles/
-│   │   └── seances/
-│   ├── includes/                 # Header et Footer
-│   │   ├── header.php
-│   │   └── footer.php
-│   └── index.php                 # Point d'entrée (routeur)
+│   ├── index.php            # Front Controller
+│   ├── config/database.php  # Connexion PDO
+│   ├── controllers/         # Contrôleurs MVC
+│   ├── repositories/        # Requêtes SQL préparées
+│   ├── includes/            # Header & footer
+│   └── views/               # Vues films, salles, séances, dashboard
 ├── frontend/
-│   ├── css/
-│   │   ├── input.css            # Source Tailwind
-│   │   └── output.css           # CSS compilé
-│   ├── js/
-│   └── assets/
-├── tailwind.config.js           # Configuration Tailwind
-├── package.json
-├── script.sql                    # Schéma de la base
-└── README.md
+│   ├── css/input.css
+│   └── js/app.js
+└── script.sql               # Schéma MySQL
 ```
+
+## Installation locale
+
+1. Cloner le dépôt :
+   ```bash
+   git clone https://github.com/gabrielrigaud/my-cinema.git
+   cd my-cinema
+   ```
+2. Créer la base `my_cinema` et importer `script.sql` :
+   ```bash
+   mysql -u root -p -e "CREATE DATABASE my_cinema CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+   mysql -u root -p my_cinema < script.sql
+   ```
+3. Configurer `backend/config/database.php` puis lancer le serveur :
+   ```bash
+   npm install
+   npm run dev
+   ```
+   Ou directement avec PHP : `php -S localhost:8000 -t backend`.
